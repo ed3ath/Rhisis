@@ -211,7 +211,6 @@ public class AddObjectSnapshot : FFSnapshot
                         WriteInt32(0);
                     }
 
-                    // buffs
                     player.Buffs.Serialize(this);
                 }
                 break;
