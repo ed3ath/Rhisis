@@ -8,7 +8,7 @@
   <a href="http://forthebadge.com"><img src="http://forthebadge.com/images/badges/built-with-love.svg"></a><br>
 </p>
 
-<h4>Built with C# 10 and the <a href="https://dotnet.microsoft.com/download/dotnet-core" target="_blank">.NET 7</a>.</h4>
+<h4>Built with latest C# version and the <a href="https://dotnet.microsoft.com/download/dotnet-core" target="_blank">.NET 8</a>.</h4>
 
 <p>This project has been created for learning purposes about the network and game logic problematics on the server-side.<br>
 
@@ -36,7 +36,7 @@
 ## Technical information
 
 - Language: `C#` (Latest version)
-- Framework: `.NET 7`
+- Framework: `.NET 8`
 - Application type: `Console`
 - Database type: `Sqlite`, `MySQL`
 - Configuration files type: `YAML`
@@ -45,6 +45,7 @@
 	- [LiteNetwork](https://github.com/Eastrall/LiteNetwork)
 	- [Entity Framework Core](https://github.com/aspnet/EntityFrameworkCore)
 	- [NLog](https://github.com/NLog/NLog)
+	- [NetEscapades.Configuration.Yaml](https://github.com/andrewlock/NetEscapades.Configuration)
 
 ## Getting started
 
@@ -53,7 +54,7 @@ Please take a look at our [contributing](https://github.com/Eastrall/Rhisis/blob
 Before getting started, you will need to install the following softwares:
 
 - Visual Studio 2022
-- .NET 7 SDK : https://dotnet.microsoft.com/en-us/download/dotnet/7.0
+- .NET 8 SDK : https://dotnet.microsoft.com/en-us/download/dotnet/8.0
 
 ### Initial setup
 
