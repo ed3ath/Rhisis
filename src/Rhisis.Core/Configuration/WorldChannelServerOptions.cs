@@ -44,4 +44,10 @@ public sealed class WorldChannelServerOptions
     /// </summary>
     [ConfigurationKeyName("pk-enabled")]
     public bool IsPlayerKillingEnabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets a boolean value that indicates if the channel allows player killing (PK).
+    /// </summary>
+    [ConfigurationKeyName("npc-buff")]
+    public NpcBuffOptionsSection NpcBuff { get; set; } = new NpcBuffOptionsSection();
 }

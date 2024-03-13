@@ -89,7 +89,7 @@ public sealed class QuestDiary : IEnumerable<Quest>
         }
 
         // Check if player has enough space for reward items.
-        if (quest.Properties.Rewards.Items != null && quest.Properties.Rewards.Items.Any())
+        if (quest.Properties.Rewards.Items is not null && quest.Properties.Rewards.Items.Any())
         {
             IEnumerable<QuestItemProperties> itemsForPlayer = quest.Properties.Rewards.Items.Where(x => x.Sex == _player.Appearence.Gender || x.Sex == GenderType.Any);
 
@@ -119,7 +119,7 @@ public sealed class QuestDiary : IEnumerable<Quest>
         }
 
         // Remove quest items from inventory
-        if (quest.Properties.QuestEndCondition.Items != null && quest.Properties.QuestEndCondition.Items.Any())
+        if (quest.Properties.QuestEndCondition.Items is not null && quest.Properties.QuestEndCondition.Items.Any())
         {
             foreach (QuestItemProperties questItem in quest.Properties.QuestEndCondition.Items)
             {
@@ -256,56 +256,59 @@ public sealed class QuestDiary : IEnumerable<Quest>
         {
             bool updateQuest = false;
 
-            QuestMonsterProperties questMonster = quest.Properties.QuestEndCondition.Monsters.FirstOrDefault(x => killedMonsterId == GameResources.Current.GetDefinedValue(x.Id));
-
-            if (questMonster is not null && quest.Monsters.ContainsKey(killedMonsterId) && quest.Monsters[killedMonsterId] < questMonster.Amount)
+            if (quest is not null & quest.Properties.QuestEndCondition is not null && quest.Properties.QuestEndCondition.Monsters is not null && quest.Properties.QuestEndCondition.Monsters.Count() > 0)
             {
-                quest.Monsters[killedMonsterId] += 1;
-                updateQuest = true;
-            }
+                QuestMonsterProperties questMonster = quest.Properties.QuestEndCondition.Monsters.FirstOrDefault(x => killedMonsterId == GameResources.Current.GetDefinedValue(x.Id));
 
-            IEnumerable<QuestItemDropProperties> questItemDrops = quest.Properties.Drops.Where(x => killedMonsterId == GameResources.Current.GetDefinedValue(x.MonsterId));
-
-            if (questItemDrops.Any())
-            {
-                foreach (QuestItemDropProperties questItem in questItemDrops)
+                if (questMonster is not null && quest.Monsters.ContainsKey(killedMonsterId) && quest.Monsters[killedMonsterId] < questMonster.Amount)
                 {
-                    // TODO: move this constant to configuration file
-                    const long MaxDropChance = 3000000000;
-                    long dropChance = FFRandom.LongRandom(0, MaxDropChance);
+                    quest.Monsters[killedMonsterId] += 1;
+                    updateQuest = true;
+                }
 
-                    if (dropChance < questItem.Probability * GameOptions.Current.Rates.Drop)
+                IEnumerable<QuestItemDropProperties> questItemDrops = quest.Properties.Drops.Where(x => killedMonsterId == GameResources.Current.GetDefinedValue(x.MonsterId));
+
+                if (questItemDrops.Any())
+                {
+                    foreach (QuestItemDropProperties questItem in questItemDrops)
                     {
-                        int itemId = GameResources.Current.GetDefinedValue(questItem.ItemId);
-                        Item item = new(GameResources.Current.Items.Get(itemId))
-                        {
-                            Quantity = questItem.Quantity,
-                            CreatorId = _player.Id
-                        };
-                        int createdQuantity = _player.Inventory.CreateItem(item);
+                        // TODO: move this constant to configuration file
+                        const long MaxDropChance = 3000000000;
+                        long dropChance = FFRandom.LongRandom(0, MaxDropChance);
 
-                        if (createdQuantity > 0)
+                        if (dropChance < questItem.Probability * GameOptions.Current.Rates.Drop)
                         {
-                            _player.SendDefinedText(DefineText.TID_EVE_REAPITEM, $"\"{item.Name ?? "[undefined]"}\"");
-                        }
-                        else
-                        {
-                            MapItemObject mapItem = new(item)
+                            int itemId = GameResources.Current.GetDefinedValue(questItem.ItemId);
+                            Item item = new(GameResources.Current.Items.Get(itemId))
                             {
-                                Map = _player.Map,
-                                MapLayer = _player.MapLayer,
-                                Position = _player.Position.Clone()
+                                Quantity = questItem.Quantity,
+                                CreatorId = _player.Id
                             };
+                            int createdQuantity = _player.Inventory.CreateItem(item);
 
-                            _player.MapLayer.AddItem(mapItem);
+                            if (createdQuantity > 0)
+                            {
+                                _player.SendDefinedText(DefineText.TID_EVE_REAPITEM, $"\"{item.Name ?? "[undefined]"}\"");
+                            }
+                            else
+                            {
+                                MapItemObject mapItem = new(item)
+                                {
+                                    Map = _player.Map,
+                                    MapLayer = _player.MapLayer,
+                                    Position = _player.Position.Clone()
+                                };
+
+                                _player.MapLayer.AddItem(mapItem);
+                            }
                         }
                     }
                 }
-            }
 
-            if (updateQuest)
-            {
-                SendSetQuestPacket(_player, quest);
+                if (updateQuest)
+                {
+                    SendSetQuestPacket(_player, quest);
+                }
             }
         }
     }
