@@ -19,7 +19,7 @@ public sealed class WorldUser : FFUserConnection
 
     internal Player Player { get; set; }
 
-    public WorldUser(ILogger<WorldUser> logger, IServiceProvider serviceProvider) 
+    public WorldUser(ILogger<WorldUser> logger, IServiceProvider serviceProvider)
         : base(logger)
     {
         _serviceProvider = serviceProvider;
@@ -74,7 +74,7 @@ public sealed class WorldUser : FFUserConnection
 
     private static void SavePlayerInformation(Player player, IGameDatabase gameDatabase)
     {
-        PlayerEntity playerEntity = gameDatabase.Players.FirstOrDefault(x => x.Id == player.Id) 
+        PlayerEntity playerEntity = gameDatabase.Players.FirstOrDefault(x => x.Id == player.Id)
             ?? throw new InvalidOperationException($"Cannot find player with id: {player.Id} in database (Player: {player.Name})");
 
         playerEntity.Level = player.Level;
@@ -82,7 +82,7 @@ public sealed class WorldUser : FFUserConnection
         playerEntity.Angle = player.RotationAngle;
 
         playerEntity.PosX = player.Position.X;
-        playerEntity.PosY = player.Position.Y; 
+        playerEntity.PosY = player.Position.Y;
         playerEntity.PosZ = player.Position.Z;
         playerEntity.MapId = player.Map.Id;
         playerEntity.MapLayerId = player.MapLayer.Id;
@@ -95,11 +95,11 @@ public sealed class WorldUser : FFUserConnection
         playerEntity.Hp = player.Health.Hp;
         playerEntity.Mp = player.Health.Mp;
         playerEntity.Fp = player.Health.Fp;
-        playerEntity.FaceId = player.Appearence.FaceId;
-        playerEntity.SkinSetId = player.Appearence.SkinSetId;
-        playerEntity.HairId = player.Appearence.HairId;
-        playerEntity.HairColor = player.Appearence.HairColor;
-        playerEntity.Gender = (byte)player.Appearence.Gender;
+        playerEntity.FaceId = player.Appearance.FaceId;
+        playerEntity.SkinSetId = player.Appearance.SkinSetId;
+        playerEntity.HairId = player.Appearance.HairId;
+        playerEntity.HairColor = player.Appearance.HairColor;
+        playerEntity.Gender = (byte)player.Appearance.Gender;
         playerEntity.Gold = player.Gold.Amount;
         playerEntity.JobId = (int)player.Job.Id;
         playerEntity.Slot = (byte)player.Slot;
@@ -157,46 +157,56 @@ public sealed class WorldUser : FFUserConnection
 
     private static void SavePlayerBank(Player player, IGameDatabase gameDatabase)
     {
-        List<PlayerItemEntity> playerItems = gameDatabase.PlayerItems
-            .Where(x => x.PlayerId == player.Id && x.StorageType == PlayerItemStorageType.Bank)
+        List<BankEntity> playerBankSlots = gameDatabase.Banks.Where(x => x.PlayerId == player.Id).ToList();
+
+        foreach (BankEntity bank in playerBankSlots)
+        {
+            List<BankItemEntity> bankItems = gameDatabase.BankItems
+            .Where(x => x.BankId == bank.Id)
             .ToList();
 
-        foreach (PlayerItemEntity itemToRemove in playerItems)
-        {
-            gameDatabase.PlayerItems.Remove(itemToRemove);
-        }
-
-        ItemContainer payerBank = player.Bank.GetBank((byte)player.Slot);
-
-        for (int i = 0; i < payerBank.MaxCapacity; i++)
-        {
-            ItemContainerSlot slot = payerBank.GetAtSlot(i);
-
-            if (slot.HasItem)
+            foreach (BankItemEntity itemToRemove in bankItems)
             {
-                ItemEntity item = gameDatabase.Items.FirstOrDefault(x => x.SerialNumber == slot.Item.SerialNumber) ?? new ItemEntity();
+                gameDatabase.BankItems.Remove(itemToRemove);
+            }
 
-                item.Refine = slot.Item.Refine;
-                item.Element = (byte)slot.Item.Element;
-                item.ElementRefine = slot.Item.ElementRefine;
-                // TODO: save item attributes like awakening statistics.
+            ItemContainer playerBank = player.Bank.GetBank((byte)bank.PlayerSlot, true);
 
-                if (item.SerialNumber == 0)
+            if (playerBank != null)
+            {
+
+                for (int i = 0; i < playerBank.MaxCapacity; i++)
                 {
-                    item.Id = slot.Item.Id;
-                    //gameDatabase.Items.Add(item);
+                    ItemContainerSlot slot = playerBank.GetAtSlot(i);
+
+                    if (slot.HasItem)
+                    {
+                        ItemEntity item = gameDatabase.Items.FirstOrDefault(x => x.SerialNumber == slot.Item.SerialNumber) ?? new ItemEntity();
+
+                        item.Refine = slot.Item.Refine;
+                        item.Element = (byte)slot.Item.Element;
+                        item.ElementRefine = slot.Item.ElementRefine;
+                        // TODO: save item attributes like awakening statistics.
+
+                        if (item.SerialNumber == 0)
+                        {
+                            item.Id = slot.Item.Id;
+                            //gameDatabase.Items.Add(item);
+                        }
+
+                        BankItemEntity bankItem = new()
+                        {
+                            BankId = bank.Id,
+                            Bank = bank,
+                            ItemId = item.Id,
+                            Item = item,
+                            Slot = (byte)slot.Number,
+                            Quantity = slot.Item.Quantity,
+                        };
+
+                        gameDatabase.BankItems.Add(bankItem);
+                    }
                 }
-
-                PlayerItemEntity playerItem = new()
-                {
-                    PlayerId = player.Id,
-                    Slot = (byte)slot.Number,
-                    Quantity = slot.Item.Quantity,
-                    StorageType = PlayerItemStorageType.Bank,
-                    Item = item
-                };
-
-                gameDatabase.PlayerItems.Add(playerItem);
             }
         }
 
@@ -289,7 +299,7 @@ public sealed class WorldUser : FFUserConnection
         {
             gameDatabase.PlayerSkillBuffAttributes.Remove(buffAttribute);
         }
-        
+
         foreach (PlayerSkillBuffEntity skillBuff in buffs)
         {
             gameDatabase.PlayerSkillBuffs.Remove(skillBuff);

@@ -43,11 +43,11 @@ public class AddObjectSnapshot : FFSnapshot
                     WriteInt32(-1); // m_dwMoverSfxId
 
                     WriteString(player.Name);
-                    WriteByte((byte)player.Appearence.Gender);
-                    WriteByte((byte)player.Appearence.SkinSetId);
-                    WriteByte((byte)player.Appearence.HairId);
-                    WriteInt32(player.Appearence.HairColor);
-                    WriteByte((byte)player.Appearence.FaceId);
+                    WriteByte((byte)player.Appearance.Gender);
+                    WriteByte((byte)player.Appearance.SkinSetId);
+                    WriteByte((byte)player.Appearance.HairId);
+                    WriteInt32(player.Appearance.HairColor);
+                    WriteByte((byte)player.Appearance.FaceId);
                     WriteInt32(player.Id);
                     WriteByte((byte)player.Job.Id);
 
@@ -162,15 +162,37 @@ public class AddObjectSnapshot : FFSnapshot
                         // Bank
                         for (var i = 0; i < 3; ++i)
                         {
-                            for (var j = 0; j < 0x2A; ++j)
+                            var bank = player.Bank.GetBank((byte)i, true);
+                            if (bank != null)
                             {
-                                WriteInt32(j);
+                                bank.Serialize(this);
                             }
-
-                            WriteByte(0); // count
-                            for (var j = 0; j < 0x2A; ++j)
+                            else
                             {
-                                WriteInt32(j);
+                                for (var j = 0; j < 0x2A; ++j)
+                                {
+                                    if (j < 2 && i == 0)
+                                    {
+                                        WriteInt32(2530);
+                                    }
+                                    else
+                                    {
+                                        WriteInt32(j);
+                                    }
+                                }
+
+                                WriteByte(0); // count
+                                for (var j = 0; j < 0x2A; ++j)
+                                {
+                                    if (j < 2 && i == 0)
+                                    {
+                                        WriteInt32(99);
+                                    }
+                                    else
+                                    {
+                                        WriteInt32(j);
+                                    }
+                                }
                             }
                         }
 
@@ -263,7 +285,7 @@ public class AddObjectSnapshot : FFSnapshot
             case MapItemObject mapItem:
                 mapItem.Serialize(this);
                 break;
-            default: 
+            default:
                 throw new NotImplementedException();
         }
     }

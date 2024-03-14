@@ -59,7 +59,7 @@ public sealed class Player : Mover
     /// <summary>
     /// Gets the player's appearance.
     /// </summary>
-    public HumanVisualAppearance Appearence { get; init; }
+    public HumanVisualAppearance Appearance { get; init; }
 
     /// <summary>
     /// Gets or sets the player's inventory.
@@ -237,7 +237,7 @@ public sealed class Player : Mover
     /// </summary>
     public void ResetStatistics()
     {
-        DefaultCharacterOptions defaultCharacter = Appearence.Gender == GenderType.Male ?
+        DefaultCharacterOptions defaultCharacter = Appearance.Gender == GenderType.Male ?
             GameOptions.Current.DefaultCharacter.Man :
             GameOptions.Current.DefaultCharacter.Woman;
 

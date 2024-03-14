@@ -33,6 +33,5 @@ internal sealed class ConfirmBankHandler : WorldPacketHandler
         }
         using var snapshot = new ConfirmBankSnapshot(Player.BankPin != BankPin ? 0 : 1, Player.ObjectId, packet.ItemId);
         Player.Send(snapshot);
-        Player.Bank.GetBank((byte)Player.Slot).SendBank();
     }
 }

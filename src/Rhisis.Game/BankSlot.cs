@@ -29,17 +29,19 @@ public sealed class BankSlot
     {
         _owner = owner;
         List<Bank> bankSlots = new();
-        for(int i = 0; i< SlotSize; i++) {
-            bankSlots.Add(new Bank(owner));
+        for (int i = 0; i < SlotSize; i++)
+        {
+            bankSlots.Add(new Bank(owner, (byte)i));
         }
         _bankSlots = [.. bankSlots];
     }
 
-    public Bank GetBank(byte slot) {
+    public Bank GetBank(byte slot, bool init = false)
+    {
         if (slot > SlotSize)
         {
             throw new InvalidOperationException($"Bank slot is out of bounce: {slot}");
         }
-        return _bankSlots.FirstOrDefault(x => x.Slot == slot) ?? throw new InvalidOperationException($"Bank is not found for slot: {slot}");
+        return _bankSlots.FirstOrDefault(x => x.Slot == slot) ?? (!init ? throw new InvalidOperationException($"Bank is not found for slot: {slot}") : null);
     }
 }

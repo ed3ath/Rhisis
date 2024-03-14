@@ -91,7 +91,7 @@ public sealed class QuestDiary : IEnumerable<Quest>
         // Check if player has enough space for reward items.
         if (quest.Properties.Rewards.Items is not null && quest.Properties.Rewards.Items.Any())
         {
-            IEnumerable<QuestItemProperties> itemsForPlayer = quest.Properties.Rewards.Items.Where(x => x.Sex == _player.Appearence.Gender || x.Sex == GenderType.Any);
+            IEnumerable<QuestItemProperties> itemsForPlayer = quest.Properties.Rewards.Items.Where(x => x.Sex == _player.Appearance.Gender || x.Sex == GenderType.Any);
 
             if (_player.Inventory.GetStorageCount() + itemsForPlayer.Count() > _player.Inventory.Capacity)
             {
@@ -125,7 +125,7 @@ public sealed class QuestDiary : IEnumerable<Quest>
             {
                 if (questItem.Remove)
                 {
-                    if (questItem.Sex == GenderType.Any || questItem.Sex == _player.Appearence.Gender)
+                    if (questItem.Sex == GenderType.Any || questItem.Sex == _player.Appearance.Gender)
                     {
                         ItemContainerSlot inventoryItemSlot = _player.Inventory.FindSlot(x => x.HasItem && x.Item.Id == GameResources.Current.GetDefinedValue(questItem.Id));
 

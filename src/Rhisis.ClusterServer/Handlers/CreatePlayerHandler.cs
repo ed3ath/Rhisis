@@ -9,6 +9,7 @@ using Rhisis.Infrastructure.Persistance;
 using Rhisis.Infrastructure.Persistance.Entities;
 using Rhisis.Protocol;
 using Rhisis.Protocol.Handlers;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Rhisis.ClusterServer.Handlers;
@@ -52,7 +53,7 @@ internal class CreatePlayerHandler : ClusterHandlerBase
             return;
         }
 
-        DefaultCharacterOptions defaultPlayerOptions = packet.Gender == (byte)GenderType.Male ? 
+        DefaultCharacterOptions defaultPlayerOptions = packet.Gender == (byte)GenderType.Male ?
             _cluster.Configuration.DefaultCharacter.Man : _cluster.Configuration.DefaultCharacter.Woman;
 
         PlayerEntity newPlayer = new()
@@ -106,6 +107,14 @@ internal class CreatePlayerHandler : ClusterHandlerBase
         }
 
         _gameDatabase.Players.Add(newPlayer);
+        _gameDatabase.SaveChanges();
+
+        _gameDatabase.Banks.Add(new BankEntity
+        {
+            PlayerId = newPlayer.Id,
+            PlayerSlot = (byte)newPlayer.Slot,
+            Gold = 0
+        });
         _gameDatabase.SaveChanges();
 
         _logger.LogInformation($"Player '{newPlayer.Name}' has been created successfully for user '{userAccount.Username}'.");

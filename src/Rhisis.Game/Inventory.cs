@@ -350,7 +350,7 @@ public sealed class Inventory : ItemContainer
     /// <returns>True if the item can be equiped; false otherwise.</returns>
     public bool IsItemEquipable(Item item)
     {
-        if (item.Properties.ItemSex != int.MaxValue && (GenderType)item.Properties.ItemSex != _owner.Appearence.Gender)
+        if (item.Properties.ItemSex != int.MaxValue && (GenderType)item.Properties.ItemSex != _owner.Appearance.Gender)
         {
             _owner.SendDefinedText(DefineText.TID_GAME_WRONGSEX, item.Name);
 

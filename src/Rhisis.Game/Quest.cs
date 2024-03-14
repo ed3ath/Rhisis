@@ -93,7 +93,7 @@ public sealed class Quest : IPacketSerializer
         {
             foreach (QuestItemProperties questItem in Properties.QuestEndCondition.Items)
             {
-                if (questItem.Sex == GenderType.Any || questItem.Sex == _owner.Appearence.Gender)
+                if (questItem.Sex == GenderType.Any || questItem.Sex == _owner.Appearance.Gender)
                 {
                     ItemProperties itemProperties = GameResources.Current.Items.Get(questItem.Id);
 

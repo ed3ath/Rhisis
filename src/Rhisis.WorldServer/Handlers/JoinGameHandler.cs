@@ -83,7 +83,7 @@ internal class JoinGameHandler : WorldPacketHandler
             Job = GameResources.Current.Jobs.Get(player.JobId),
             AvailablePoints = player.StatPoints,
             SkillPoints = (ushort)player.SkillPoints,
-            Appearence = new HumanVisualAppearance
+            Appearance = new HumanVisualAppearance
             {
                 Gender = player.Gender == 0 ? GenderType.Male : GenderType.Female,
                 SkinSetId = player.SkinSetId,
@@ -123,8 +123,8 @@ internal class JoinGameHandler : WorldPacketHandler
                 new WorldReadInfoSnapshot(User.Player),
                 new AddObjectSnapshot(User.Player),
                 new TaskbarSnapshot(User.Player)
-                //new QueryPlayerDataSnapshot(cachedPlayer),
-                //new AddFriendGameJoinSnapshot(User.Player)
+            //new QueryPlayerDataSnapshot(cachedPlayer),
+            //new AddFriendGameJoinSnapshot(User.Player)
             );
 
             User.Send(joinPacket);
@@ -158,24 +158,26 @@ internal class JoinGameHandler : WorldPacketHandler
 
     private static void LoadBank(Player player, IGameDatabase gameDatabase)
     {
-        Dictionary<int, Item> playerBankItems = gameDatabase.PlayerItems
-            .Include(x => x.Item)
-            .Where(x => x.PlayerId == player.Id && x.StorageType == PlayerItemStorageType.Bank)
-            .ToDictionary(x => (int)x.Slot,
-                x => new Item(GameResources.Current.Items.Get(x.Item.Id))
-                {
-                    SerialNumber = x.Item.SerialNumber,
-                    Refine = x.Item.Refine.GetValueOrDefault(0),
-                    Element = (ElementType)x.Item.Element.GetValueOrDefault(0),
-                    ElementRefine = x.Item.ElementRefine.GetValueOrDefault(0),
-                    Quantity = x.Quantity
-                });
-
-        if (playerBankItems.Any())
+        List<BankEntity> playerBankSlots = gameDatabase.Banks.Where(x => x.PlayerId == player.Id).ToList();
+        foreach (BankEntity bank in playerBankSlots)
         {
-            player.Bank.GetBank((byte)player.Slot).Initialize(playerBankItems);
+            Dictionary<int, Item> playerBankItems = gameDatabase.BankItems
+                .Include(x => x.Item)
+                .Where(x => x.BankId == bank.Id)
+                .ToDictionary(x => (int)x.Slot,
+                    x => new Item(GameResources.Current.Items.Get(x.Item.Id))
+                    {
+                        SerialNumber = x.Item.SerialNumber,
+                        Refine = x.Item.Refine.GetValueOrDefault(0),
+                        Element = (ElementType)x.Item.Element.GetValueOrDefault(0),
+                        ElementRefine = x.Item.ElementRefine.GetValueOrDefault(0),
+                        Quantity = x.Quantity
+                    });
+            ItemContainer playerBank = player.Bank.GetBank(bank.PlayerSlot, true);
+
+            playerBank.Initialize(playerBankItems);
+            Console.WriteLine($"Loaded bank for {player.Name} {bank.PlayerSlot}: {playerBank.Count}");
         }
-        Console.WriteLine($"Loaded bank for {player.Name}: {player.Bank.GetBank((byte)player.Slot).Count}");
     }
 
     private static void LoadSkills(Player player, IGameDatabase gameDatabase)

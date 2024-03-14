@@ -191,37 +191,6 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                     b.ToTable("PlayerItems");
                 });
 
-            modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.PlayerBankItemEntity", b =>
-                {
-                    b.Property<int>("PlayerId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("PlayerSlot")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte>("StorageType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<byte>("Slot")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PlayerId", "StorageType", "Slot");
-
-                    b.HasIndex("ItemId")
-                        .IsUnique();
-
-                    b.HasIndex("PlayerId", "StorageType", "Slot")
-                        .IsUnique();
-
-                    b.ToTable("PlayerBankItems");
-                });
-
             modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.PlayerQuestEntity", b =>
                 {
                     b.Property<int>("PlayerId")
@@ -401,6 +370,78 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                 {
                     b.Navigation("Attributes");
                 });
+
+            modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.BankItemEntity", b =>
+                {
+                    b.Property<int>("BankId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte>("Slot")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("BankId", "Slot");
+
+                    b.HasIndex("ItemId")
+                        .IsUnique();
+
+                    b.HasIndex("BankId", "Slot")
+                        .IsUnique();
+
+                    b.ToTable("BankItems");
+                });
+
+            modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.BankEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte>("PlayerSlot")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Gold")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId")
+                        .IsUnique();
+
+                    b.ToTable("Banks");
+                });
+
+            modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.BankItemEntity", b =>
+                {
+                    b.HasOne("Rhisis.Infrastructure.Persistance.Entities.ItemEntity", "Item")
+                        .WithOne()
+                        .HasForeignKey("Rhisis.Infrastructure.Persistance.Entities.BankItemEntity", "ItemId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Rhisis.Infrastructure.Persistance.Entities.BankEntity", "Bank")
+                        .WithMany("Items")
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Bank");
+                });
+
+            
 #pragma warning restore 612, 618
         }
     }

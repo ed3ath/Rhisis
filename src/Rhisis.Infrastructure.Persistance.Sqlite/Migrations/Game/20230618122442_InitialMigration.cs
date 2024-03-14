@@ -97,32 +97,6 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                 });
 
             migrationBuilder.CreateTable(
-                name: "PlayerBankItems",
-                columns: table => new
-                {
-                    PlayerId = table.Column<int>(type: "INTEGER", nullable: false),
-                    PlayerSlot = table.Column<byte>(type: "INTEGER", nullable: false),
-                    StorageType = table.Column<byte>(type: "INTEGER", nullable: false),
-                    Slot = table.Column<byte>(type: "INTEGER", nullable: false),
-                    ItemId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PlayerBankItems", x => new { x.PlayerId, x.StorageType, x.Slot });
-                    table.ForeignKey(
-                        name: "FK_PlayerBankItems_Items_ItemId",
-                        column: x => x.ItemId,
-                        principalTable: "Items",
-                        principalColumn: "SerialNumber");
-                    table.ForeignKey(
-                        name: "FK_PlayerBankItems_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PlayerQuests",
                 columns: table => new
                 {
@@ -205,6 +179,50 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Banks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PlayerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PlayerSlot = table.Column<byte>(type: "INTEGER", nullable: false),
+                    Gold = table.Column<byte>(type: "INTEGER", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Banks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Banks_Player_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BankItems",
+                columns: table => new
+                {
+                    BankId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ItemId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Slot = table.Column<byte>(type: "INTEGER", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("BankItems", x => new { x.BankId, x.Slot });
+                    table.ForeignKey(
+                        name: "FK_BankItems_Bank_BankId",
+                        column: x => x.BankId,
+                        principalTable: "Banks",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_BankItems_Item_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "SerialNumber");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_PlayerItems_ItemId",
                 table: "PlayerItems",
@@ -256,6 +274,12 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
 
             migrationBuilder.DropTable(
                 name: "PlayerSkillBuffs");
+
+            migrationBuilder.DropTable(
+                name: "BankItems");
+
+            migrationBuilder.DropTable(
+                name: "Banks");
 
             migrationBuilder.DropTable(
                 name: "Players");

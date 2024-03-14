@@ -49,12 +49,10 @@ internal sealed class GetBankItemHandler : WorldPacketHandler
 
         ItemContainer playerBank = Player.Bank.GetBank(packet.Slot);
 
-        Console.WriteLine("=========Withdraw ITEM============");
         foreach (ItemContainerSlot slot in playerBank.GetItems())
         {
             Console.WriteLine($"{slot.Index} {slot.Item.Id} {slot.Item.Quantity}");
         }
-        Console.WriteLine("=================================");
 
     }
 }

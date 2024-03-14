@@ -184,4 +184,5 @@ public sealed class PlayerEntity
     /// Gets or sets the player quests.
     /// </summary>
     public ICollection<PlayerQuestEntity> Quests { get; set; } = new HashSet<PlayerQuestEntity>();
+
 }

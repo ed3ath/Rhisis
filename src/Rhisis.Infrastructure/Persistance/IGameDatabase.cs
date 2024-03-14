@@ -12,8 +12,6 @@ public interface IGameDatabase : IDisposable
 
     DbSet<PlayerItemEntity> PlayerItems { get; }
 
-    DbSet<PlayerBankItemEntity> PlayerBankItems { get; }
-
     DbSet<PlayerSkillEntity> PlayerSkills { get; }
 
     DbSet<PlayerSkillBuffEntity> PlayerSkillBuffs { get; }
@@ -21,6 +19,10 @@ public interface IGameDatabase : IDisposable
     DbSet<PlayerSkillBuffAttributeEntity> PlayerSkillBuffAttributes { get; }
 
     DbSet<PlayerQuestEntity> PlayerQuests { get; }
+
+    DbSet<BankItemEntity> BankItems { get; }
+
+    DbSet<BankEntity> Banks { get; }
 
     void Migrate();
 
