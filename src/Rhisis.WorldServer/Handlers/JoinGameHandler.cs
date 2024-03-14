@@ -91,7 +91,7 @@ internal class JoinGameHandler : WorldPacketHandler
                 HairColor = player.HairColor,
                 HairId = player.HairId,
             },
-            BankCode = player.BankCode,
+            BankPin = player.BankPin,
         };
         User.Player.Health.Hp = player.Hp;
         User.Player.Health.Mp = player.Mp;
@@ -107,6 +107,7 @@ internal class JoinGameHandler : WorldPacketHandler
 
 
         LoadInventory(User.Player, _gameDatabase);
+        LoadBank(User.Player, _gameDatabase);
         LoadSkills(User.Player, _gameDatabase);
         LoadQuests(User.Player, _gameDatabase);
         LoadBuffs(User.Player, _gameDatabase);
@@ -153,6 +154,28 @@ internal class JoinGameHandler : WorldPacketHandler
         {
             player.Inventory.Initialize(playerInventoryItems);
         }
+    }
+
+    private static void LoadBank(Player player, IGameDatabase gameDatabase)
+    {
+        Dictionary<int, Item> playerBankItems = gameDatabase.PlayerItems
+            .Include(x => x.Item)
+            .Where(x => x.PlayerId == player.Id && x.StorageType == PlayerItemStorageType.Bank)
+            .ToDictionary(x => (int)x.Slot,
+                x => new Item(GameResources.Current.Items.Get(x.Item.Id))
+                {
+                    SerialNumber = x.Item.SerialNumber,
+                    Refine = x.Item.Refine.GetValueOrDefault(0),
+                    Element = (ElementType)x.Item.Element.GetValueOrDefault(0),
+                    ElementRefine = x.Item.ElementRefine.GetValueOrDefault(0),
+                    Quantity = x.Quantity
+                });
+
+        if (playerBankItems.Any())
+        {
+            player.Bank.GetBank((byte)player.Slot).Initialize(playerBankItems);
+        }
+        Console.WriteLine($"Loaded bank for {player.Name}: {player.Bank.GetBank((byte)player.Slot).Count}");
     }
 
     private static void LoadSkills(Player player, IGameDatabase gameDatabase)

@@ -59,7 +59,7 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                         .HasColumnType("REAL")
                         .HasDefaultValue(0f);
 
-                    b.Property<int>("BankCode")
+                    b.Property<int>("BankPin")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Dexterity")
@@ -186,6 +186,37 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                         .IsUnique();
 
                     b.ToTable("PlayerItems");
+                });
+
+            modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.PlayerBankItemEntity", b =>
+                {
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PlayerSlot")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte>("StorageType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte>("Slot")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PlayerId", "StorageType", "Slot");
+
+                    b.HasIndex("ItemId")
+                        .IsUnique();
+
+                    b.HasIndex("PlayerId", "StorageType", "Slot")
+                        .IsUnique();
+
+                    b.ToTable("PlayerBankItems");
                 });
 
             modelBuilder.Entity("Rhisis.Infrastructure.Persistance.Entities.PlayerQuestEntity", b =>

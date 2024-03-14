@@ -136,9 +136,9 @@ public sealed class PlayerEntity
     public float Angle { get; set; }
 
     /// <summary>
-    /// Gets or sets the character bank code.
+    /// Gets or sets the character bank pin.
     /// </summary>
-    public int BankCode { get; set; }
+    public int BankPin { get; set; }
 
     /// <summary>
     /// Gets or sets the character remaining statistics points.

@@ -12,6 +12,8 @@ public interface IGameDatabase : IDisposable
 
     DbSet<PlayerItemEntity> PlayerItems { get; }
 
+    DbSet<PlayerBankItemEntity> PlayerBankItems { get; }
+
     DbSet<PlayerSkillEntity> PlayerSkills { get; }
 
     DbSet<PlayerSkillBuffEntity> PlayerSkillBuffs { get; }

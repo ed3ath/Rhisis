@@ -62,7 +62,7 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                         .HasColumnType("REAL")
                         .HasDefaultValue(0f);
 
-                    b.Property<int>("BankCode")
+                    b.Property<int>("BankPin")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Dexterity")

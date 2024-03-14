@@ -34,7 +34,7 @@ public sealed class PlayerEntityConfiguration : IEntityTypeConfiguration<PlayerE
         builder.Property(x => x.PosY).IsRequired();
         builder.Property(x => x.PosZ).IsRequired();
         builder.Property(x => x.Angle).IsRequired().HasDefaultValue(0);
-        builder.Property(x => x.BankCode).IsRequired();
+        builder.Property(x => x.BankPin).IsRequired();
         builder.Property(x => x.StatPoints).IsRequired();
         builder.Property(x => x.SkillPoints).IsRequired();
         builder.Property(x => x.LastConnectionTime).IsRequired();

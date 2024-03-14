@@ -11,6 +11,8 @@ public sealed class GameDbContext : BaseDbContext<GameDbContext>, IGameDatabase
 
     public DbSet<PlayerItemEntity> PlayerItems => Set<PlayerItemEntity>();
 
+    public DbSet<PlayerBankItemEntity> PlayerBankItems => Set<PlayerBankItemEntity>();
+
     public DbSet<PlayerSkillEntity> PlayerSkills => Set<PlayerSkillEntity>();
 
     public DbSet<PlayerSkillBuffEntity> PlayerSkillBuffs => Set<PlayerSkillBuffEntity>();

@@ -138,7 +138,7 @@ public class AttackArbiterBase
 
         // TODO: check if item has expired.
         float multiplier = 1.0f;
-        int refine = weapon.Properties.WeaponKind == WeaponKindType.Ultimate ? Item.ItemConstants.WeaponArmonRefineMax : weapon.Refine;
+        int refine = weapon.Properties.WeaponKind == WeaponKindType.Ultimate ? Item.ItemConstants.WeaponArmorRefineMax : weapon.Refine;
 
         if (refine > 0)
         {

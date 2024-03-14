@@ -22,13 +22,13 @@ public class PreJoinPacket
     /// <summary>
     /// Gets the character's bank code.
     /// </summary>
-    public int BankCode { get; }
+    public int BankPin { get; }
 
     public PreJoinPacket(FFPacket packet)
     {
         Username = packet.ReadString();
         CharacterId = packet.ReadInt32();
         CharacterName = packet.ReadString();
-        BankCode = packet.ReadInt32();
+        BankPin = packet.ReadInt32();
     }
 }

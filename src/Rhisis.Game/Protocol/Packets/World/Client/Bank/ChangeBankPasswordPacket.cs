@@ -2,17 +2,17 @@
 
 namespace Rhisis.Game.Protocol.Packets.World.Client.Bank;
 
-public class ChangeBankPasswordPacket
+public class ChangeBankPinPacket
 {
     /// <summary>
-    /// Gets the old password.
+    /// Gets the old bank pin.
     /// </summary>
-    public string OldPassword { get; private set; }
+    public string OldBankPin { get; private set; }
 
     /// <summary>
-    /// Gets the new password.
+    /// Gets the new bank pin.
     /// </summary>
-    public string NewPassword { get; private set; }
+    public string NewBankPin { get; private set; }
 
     /// <summary>
     /// Gets the id.
@@ -24,10 +24,10 @@ public class ChangeBankPasswordPacket
     /// </summary>
     public uint ItemId { get; private set; }
 
-    public ChangeBankPasswordPacket(FFPacket packet)
+    public ChangeBankPinPacket(FFPacket packet)
     {
-        OldPassword = packet.ReadString();
-        NewPassword = packet.ReadString();
+        OldBankPin = packet.ReadString();
+        NewBankPin = packet.ReadString();
         Id = packet.ReadUInt32();
         ItemId = packet.ReadUInt32();
     }

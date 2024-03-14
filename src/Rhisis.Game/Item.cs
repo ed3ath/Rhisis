@@ -12,8 +12,8 @@ public class Item : IEquatable<Item>
 {
     public class ItemConstants
     {
-        public static readonly int WeaponArmonRefineMax = 10;
-        public static readonly int JewleryRefineMax = 20;
+        public static readonly int WeaponArmorRefineMax = 10;
+        public static readonly int JewelryRefineMax = 20;
         public static readonly int ElementRefineMax = 10;
     }
 
