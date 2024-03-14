@@ -25,26 +25,36 @@ internal sealed class GetBankItemHandler : WorldPacketHandler
             throw new InvalidOperationException("Request id not supplied.");
         }
 
-        if (packet.Slot >= 3) {
+        if (packet.Slot >= 3)
+        {
             throw new InvalidOperationException($"Slot index was out of bounds. Slot: {packet.Slot}");
         }
 
-        if (packet.Quantity < 1) {
+        if (packet.Quantity < 1)
+        {
             throw new InvalidOperationException($"Quantity not supplied. Quantity: {packet.Quantity}");
         }
 
-        ItemContainer playerBank = Player.Bank.GetBank(packet.Slot);
-        ItemContainerSlot itemSlot =playerBank.GetAtIndex(packet.ItemIndex) ??
+
+
+        ItemContainerSlot itemSlot = Player.Bank.GetBank(packet.Slot).GetAtIndex(packet.ItemIndex) ??
             throw new InvalidOperationException($"Slot unavailable: {packet.Slot}.");
 
-        if (!itemSlot.HasItem) {
+        if (!itemSlot.HasItem)
+        {
             throw new InvalidOperationException($"No item found. Slot: {packet.Slot}");
         }
 
-
-        Item item = itemSlot.Item;
         Player.Bank.GetBank(packet.Slot).GetItem(itemSlot, packet.Quantity, packet.ItemIndex);
-        item.Quantity = packet.Quantity;
-        Player.Inventory.CreateItem(item.Clone());
+
+        ItemContainer playerBank = Player.Bank.GetBank(packet.Slot);
+
+        Console.WriteLine("=========Withdraw ITEM============");
+        foreach (ItemContainerSlot slot in playerBank.GetItems())
+        {
+            Console.WriteLine($"{slot.Index} {slot.Item.Id} {slot.Item.Quantity}");
+        }
+        Console.WriteLine("=================================");
+
     }
 }

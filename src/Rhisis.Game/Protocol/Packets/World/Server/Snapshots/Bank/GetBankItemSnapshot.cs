@@ -5,7 +5,7 @@ namespace Rhisis.Game.Protocol.Packets.World.Server.Snapshots.Bank;
 
 public class GetBankItemSnapshot : FFSnapshot
 {
-    public GetBankItemSnapshot(Player player, byte slot, Item item)
+    public GetBankItemSnapshot(Player player, Item item)
         : base(SnapshotType.GET_BANK_ITEM, player.ObjectId)
     {
         WriteInt32(-1);

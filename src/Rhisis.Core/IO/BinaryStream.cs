@@ -69,6 +69,8 @@ public class BinaryStream : MemoryStream
 
     public virtual void WriteBytes(byte[] values) => Write(values, 0, values.Length);
 
+    public virtual void WriteShort(short value) => InternalWriteBytes(BitConverter.GetBytes(value));
+
     public virtual void WriteString(string value)
     {
         WriteInt32(value.Length);

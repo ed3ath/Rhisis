@@ -290,7 +290,7 @@ public class ItemContainer
         itemSlot.Item = null;
         if (itemSlot.Number >= Capacity)
         {
-            _slots[itemSlot.Number] = - 1;
+            _slots[itemSlot.Number] = -1;
             itemSlot.Number = -1;
         }
     }
@@ -306,7 +306,7 @@ public class ItemContainer
 
         int sourceIndex = _slots[sourceSlot];
         int destinationIndex = _slots[destinationSlot];
-        
+
         if (sourceIndex != -1)
         {
             _items[sourceIndex].Number = sourceSlot;
@@ -348,4 +348,129 @@ public class ItemContainer
             packet.WriteInt32(_items[i].Number);
         }
     }
+
+    public ItemContainerSlot[] GetItems()
+    {
+        return _items.Where(itemSlot => itemSlot.HasItem).ToArray();
+    }
+
+    public int RemoveItem(ItemContainerSlot itemSlot, int quantityToRemove)
+    {
+        if (itemSlot.Item == null || quantityToRemove <= 0)
+        {
+            return 0;
+        }
+
+        int remainingQuantity = 0;
+
+        if (itemSlot.Item.Properties.IsStackable)
+        {
+            if (quantityToRemove >= itemSlot.Item.Quantity)
+            {
+                // Remove the entire item from the slot
+                remainingQuantity = itemSlot.Item.Quantity - quantityToRemove;
+                Remove(itemSlot);
+            }
+            else
+            {
+                // Remove the specified quantity from the item in the slot
+                remainingQuantity = itemSlot.Item.Quantity - quantityToRemove;
+                itemSlot.Item.Quantity -= quantityToRemove;
+            }
+        }
+        else
+        {
+            Remove(itemSlot);
+        }
+
+        return Math.Max(0, remainingQuantity);
+    }
+
+    public IEnumerable<ItemCreationResult> InsertItem(Item item)
+    {
+        int quantity = item.Quantity;
+        var result = new List<ItemCreationResult>();
+
+        if (!CanStoreItem(item))
+        {
+            return result;
+        }
+
+        if (item.Properties.IsStackable)
+        {
+            // Check if the item can be stacked with existing items
+            for (int i = 0; i < Capacity; i++)
+            {
+                int index = _slots[i];
+
+                if (index < 0 || index >= MaxCapacity)
+                {
+                    continue;
+                }
+
+                ItemContainerSlot slot = _items[index];
+
+                if (slot.HasItem && slot.Item.Id == item.Id && slot.Item.Quantity < slot.Item.Properties.PackMax)
+                {
+                    int spaceLeft = slot.Item.Properties.PackMax - slot.Item.Quantity;
+                    if (quantity <= spaceLeft)
+                    {
+                        slot.Item.Quantity += quantity;
+                        result.Add(new ItemCreationResult(ItemCreationActionType.Update, slot.Item, slot.Number, slot.Index));
+                        return result;
+                    }
+                    else
+                    {
+                        quantity -= spaceLeft;
+                        slot.Item.Quantity = slot.Item.Properties.PackMax;
+                        result.Add(new ItemCreationResult(ItemCreationActionType.Update, slot.Item, slot.Number, slot.Index));
+                    }
+                }
+            }
+        }
+
+        // Insert the remaining quantity into empty slots
+        for (int i = 0; i < Capacity && quantity > 0; i++)
+        {
+            int index = _slots[i];
+
+            if (index < 0 || index >= MaxCapacity)
+            {
+                continue;
+            }
+
+            ItemContainerSlot slot = _items[index];
+
+            if (!slot.HasItem)
+            {
+                slot.Index = index;
+                slot.Number = i;
+                slot.Item = new Item(item.Properties)
+                {
+                    Refine = item.Refine,
+                    Element = item.Element,
+                    ElementRefine = item.ElementRefine,
+                    CreatorId = item.CreatorId
+                };
+
+                if (quantity > slot.Item.Properties.PackMax)
+                {
+                    slot.Item.Quantity = slot.Item.Properties.PackMax;
+                    quantity -= slot.Item.Quantity;
+                }
+                else
+                {
+                    slot.Item.Quantity = quantity;
+                    quantity = 0;
+                }
+
+                result.Add(new ItemCreationResult(ItemCreationActionType.Add, slot.Item, slot.Number, slot.Index));
+            }
+        }
+
+        return result;
+    }
+
+
+
 }

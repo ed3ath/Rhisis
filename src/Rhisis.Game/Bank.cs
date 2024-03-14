@@ -1,6 +1,5 @@
 using Rhisis.Game.Common;
 using Rhisis.Game.Entities;
-using Rhisis.Game.Protocol.Packets.World.Server.Snapshots;
 using Rhisis.Game.Protocol.Packets.World.Server.Snapshots.Bank;
 using Rhisis.Protocol;
 using System;
@@ -18,7 +17,7 @@ public sealed class Bank : ItemContainer
     public static readonly int SlotSize = 3;
 
     private readonly Player _owner;
-    private bool BankInitialized { get; set; } = false;
+    private bool BankInitialized { get; set; }
 
     public byte Slot { get; set; }
 
@@ -38,27 +37,18 @@ public sealed class Bank : ItemContainer
     /// </summary>
     /// <param name="item">Item to create.</param>
     /// <param name="quantity">Quantity.</param>
-    public void PutItem(Item item, int quantity)
+    public void PutItem(ItemContainerSlot itemSlot, int quantity)
     {
+        Item item = itemSlot.Item.Clone();
+        Console.WriteLine($"Inventory Item QTY Before: {item.Quantity}");
+        quantity = _owner.Inventory.DeleteItem(itemSlot, quantity);
+        Console.WriteLine($"Inventory Item QTY After: {item.Quantity - quantity}");
         item.Quantity = quantity;
-        IEnumerable<ItemCreationResult> creationResult = CreateItem(item);
+        IEnumerable<ItemCreationResult> creationResult = InsertItem(item);
         if (creationResult.Any())
         {
             using var snapshot = new FFSnapshot();
-
-            foreach (ItemCreationResult itemResult in creationResult)
-            {
-                Item resultItem = itemResult.Item;
-                if (itemResult.ActionType == ItemCreationActionType.Add)
-                {
-                    snapshot.Merge(new PutBankItemSnapshot(_owner, Slot, resultItem));
-                }
-                else if (itemResult.ActionType == ItemCreationActionType.Update)
-                {
-                    resultItem.Quantity = quantity;
-                    snapshot.Merge(new PutBankItemSnapshot(_owner, Slot, resultItem));
-                }
-            }
+            snapshot.Merge(new PutBankItemSnapshot(_owner, Slot, item));
             _owner.Send(snapshot);
         }
         else
@@ -77,24 +67,38 @@ public sealed class Bank : ItemContainer
     // <returns>Deleted item quantity.</returns>
     public void GetItem(ItemContainerSlot itemSlot, int quantity, byte itemIndex)
     {
-
-        if (quantity > itemSlot.Item.Quantity)
-            quantity = itemSlot.Item.Quantity;
-        if (quantity < 1)
-            quantity = 1;
-
+        // TODO - check if inventory is full, check if user has common bank for different bank slot
+        quantity = Math.Max(1, Math.Min(quantity, itemSlot.Item.Quantity));
+        Item item = itemSlot.Item.Clone();
+        Console.WriteLine($"Bank Item QTY Before: {itemSlot.Item.Quantity}");
+        int currentQuantity = RemoveItem(itemSlot, quantity);
+        Console.WriteLine($"Bank Item QTY After: {currentQuantity}");
         using var snapshot = new FFSnapshot();
-        Item item = itemSlot.Item;
         item.Quantity = quantity;
-        snapshot.Merge(new GetBankItemSnapshot(_owner, Slot, item));
-        //snapshot.Merge(new UpdateBankItemSnapshot(_owner, Slot, itemIndex, UpdateItemType.UI_NUM, (short)(itemSlot.Item.Quantity-quantity)));
-
+        snapshot.Merge(new GetBankItemSnapshot(_owner, item));
+        snapshot.Merge(new UpdateBankItemSnapshot(_owner, Slot, itemIndex, currentQuantity));
         _owner.Send(snapshot);
+        _owner.Inventory.CreateItem(item);
+    }
+
+    /// <summary>
+    /// Deletes an given quantity from an item container slot.
+    /// </summary>
+    /// <param name="itemSlot">Item slot.</param>
+    /// <param name="quantity">Quantity to delete.</param>
+    /// <param name="updateType">Item update type.</param>
+    /// <param name="sendToPlayer">Boolean value that indicates if the player should be notified.</param>
+    /// <returns>Deleted item quantity.</returns>
+    public int DeleteItem(ItemContainerSlot itemSlot, int quantity)
+    {
+        itemSlot.Item.Quantity -= quantity;
 
         if (itemSlot.Item.Quantity <= 0)
         {
             Remove(itemSlot);
         }
+
+        return itemSlot.HasItem ? itemSlot.Item.Quantity : 0;
     }
 
     public void SendBank()
@@ -102,6 +106,7 @@ public sealed class Bank : ItemContainer
 
         if (!BankInitialized)
         {
+            BankInitialized = true;
             for (int i = 0; i < MaxCapacity; i++)
             {
                 ItemContainerSlot itemSlot = GetAtSlot(i);
@@ -110,13 +115,8 @@ public sealed class Bank : ItemContainer
                 {
                     Console.WriteLine($"Sending snapshot {_owner.Name} {itemSlot.Index} {itemSlot.Item.Id}");
                     _owner.Send(new PutBankItemSnapshot(_owner, Slot, itemSlot.Item));
-                    BankInitialized = true;
                 }
             }
         }
-    }
-
-    public void UpdateBank(){
-
     }
 }
