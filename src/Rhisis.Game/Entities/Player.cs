@@ -67,6 +67,11 @@ public sealed class Player : Mover
     public Inventory Inventory { get; }
 
     /// <summary>
+    /// Gets or sets the player's bank.
+    /// </summary>
+    public BankSlot Bank { get; set; }
+
+    /// <summary>
     /// Gets or sets the player's available statistic points.
     /// </summary>
     public int AvailablePoints { get; set; }
@@ -77,9 +82,9 @@ public sealed class Player : Mover
     public ushort SkillPoints { get; set; }
 
     /// <summary>
-    /// Gets or sets the player's bank code.
+    /// Gets or sets the player's bank pin.
     /// </summary>
-    public int BankCode { get; set; }
+    public int BankPin { get; set; }
 
     /// <summary>
     /// Gets the player's gold.
@@ -115,8 +120,9 @@ public sealed class Player : Mover
         : base(properties)
     {
         _connection = connection;
-        Inventory = new Inventory(owner: this);
+        Inventory = new Inventory(this);
         Gold = new Gold(this);
+        Bank = new BankSlot(this);
         Experience = new Experience(this);
         Skills = new SkillTree(this);
         QuestDiary = new QuestDiary(this);

@@ -64,7 +64,7 @@ internal class CreatePlayerHandler : ClusterHandlerBase
             HairColor = (int)packet.HairColor,
             FaceId = packet.HeadMesh,
             HairId = packet.HairMeshId,
-            BankCode = packet.BankPassword,
+            BankPin = packet.BankPassword,
             Gender = packet.Gender,
             JobId = 0,
             // Not the best of solutions.

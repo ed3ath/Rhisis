@@ -2,7 +2,7 @@
 
 namespace Rhisis.Game.Protocol.Packets.World.Client.Bank;
 
-public class GetItemBankPacket
+public class GetBankItemPacket
 {
     /// <summary>
     /// Gets the slot.
@@ -10,19 +10,19 @@ public class GetItemBankPacket
     public byte Slot { get; }
 
     /// <summary>
-    /// Gets the id.
+    /// Gets the item index.
     /// </summary>
-    public byte Id { get; }
+    public byte ItemIndex { get; }
 
     /// <summary>
-    /// Gets the item number.
+    /// Gets the item quantity.
     /// </summary>
-    public short ItemNumber { get; }
+    public short Quantity { get; }
 
-    public GetItemBankPacket(FFPacket packet)
+    public GetBankItemPacket(FFPacket packet)
     {
         Slot = packet.ReadByte();
-        Id = packet.ReadByte();
-        ItemNumber = packet.ReadInt16();
+        ItemIndex = packet.ReadByte();
+        Quantity = packet.ReadInt16();
     }
 }

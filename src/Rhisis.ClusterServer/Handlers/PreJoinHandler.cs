@@ -52,7 +52,7 @@ internal class PreJoinHandler : ClusterHandlerBase
             return;
         }
 
-        if (_cluster.Configuration.LoginProtectEnabled && !User.IsSecondPasswordCorrect(player.BankCode, packet.BankCode))
+        if (_cluster.Configuration.LoginProtectEnabled && !User.IsSecondPasswordCorrect(player.BankPin, packet.BankPin))
         {
             _logger.LogWarning($"Unable to prejoin player '{player.Name}' for user '{packet.Username}'. Reason: bad bank code.");
             User.SendNewNumPad();

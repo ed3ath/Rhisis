@@ -46,7 +46,7 @@
 [string] username
 [int] characterId
 [string] characterName
-[int] bankCode
+[int] bankPin
 [int] authKey
 ```
 

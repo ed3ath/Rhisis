@@ -59,7 +59,7 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                     PosY = table.Column<float>(type: "REAL", nullable: false),
                     PosZ = table.Column<float>(type: "REAL", nullable: false),
                     Angle = table.Column<float>(type: "REAL", nullable: false, defaultValue: 0f),
-                    BankCode = table.Column<int>(type: "INTEGER", nullable: false),
+                    BankPin = table.Column<int>(type: "INTEGER", nullable: false),
                     StatPoints = table.Column<int>(type: "INTEGER", nullable: false),
                     SkillPoints = table.Column<int>(type: "INTEGER", nullable: false),
                     LastConnectionTime = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -91,6 +91,32 @@ namespace Rhisis.Infrastructure.Persistance.Sqlite.Migrations.Game
                         principalColumn: "SerialNumber");
                     table.ForeignKey(
                         name: "FK_PlayerItems_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlayerBankItems",
+                columns: table => new
+                {
+                    PlayerId = table.Column<int>(type: "INTEGER", nullable: false),
+                    PlayerSlot = table.Column<byte>(type: "INTEGER", nullable: false),
+                    StorageType = table.Column<byte>(type: "INTEGER", nullable: false),
+                    Slot = table.Column<byte>(type: "INTEGER", nullable: false),
+                    ItemId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Quantity = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerBankItems", x => new { x.PlayerId, x.StorageType, x.Slot });
+                    table.ForeignKey(
+                        name: "FK_PlayerBankItems_Items_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "SerialNumber");
+                    table.ForeignKey(
+                        name: "FK_PlayerBankItems_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "Id");

@@ -3,6 +3,6 @@
 public enum PlayerItemStorageType
 {
     Inventory = 1,
-    ExtraBag,
-    Bank
+    ExtraBag = 2,
+    Bank = 3
 }

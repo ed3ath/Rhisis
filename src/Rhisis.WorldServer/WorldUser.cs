@@ -56,6 +56,7 @@ public sealed class WorldUser : FFUserConnection
 
         SavePlayerInformation(Player, gameDatabase);
         SavePlayerInventory(Player, gameDatabase);
+        SavePlayerBank(Player, gameDatabase);
         SavePlayerQuests(Player, gameDatabase);
         SavePlayerSkills(Player, gameDatabase);
         SavePlayerBuffs(Player, gameDatabase);
@@ -102,7 +103,7 @@ public sealed class WorldUser : FFUserConnection
         playerEntity.Gold = player.Gold.Amount;
         playerEntity.JobId = (int)player.Job.Id;
         playerEntity.Slot = (byte)player.Slot;
-        playerEntity.BankCode = player.BankCode;
+        playerEntity.BankPin = player.BankPin;
 
         gameDatabase.Players.Update(playerEntity);
         gameDatabase.SaveChanges();
@@ -144,6 +145,54 @@ public sealed class WorldUser : FFUserConnection
                     Slot = (byte)slot.Number,
                     Quantity = slot.Item.Quantity,
                     StorageType = PlayerItemStorageType.Inventory,
+                    Item = item
+                };
+
+                gameDatabase.PlayerItems.Add(playerItem);
+            }
+        }
+
+        gameDatabase.SaveChanges();
+    }
+
+    private static void SavePlayerBank(Player player, IGameDatabase gameDatabase)
+    {
+        List<PlayerItemEntity> playerItems = gameDatabase.PlayerItems
+            .Where(x => x.PlayerId == player.Id && x.StorageType == PlayerItemStorageType.Bank)
+            .ToList();
+
+        foreach (PlayerItemEntity itemToRemove in playerItems)
+        {
+            gameDatabase.PlayerItems.Remove(itemToRemove);
+        }
+
+        ItemContainer payerBank = player.Bank.GetBank((byte)player.Slot);
+
+        for (int i = 0; i < payerBank.MaxCapacity; i++)
+        {
+            ItemContainerSlot slot = payerBank.GetAtSlot(i);
+
+            if (slot.HasItem)
+            {
+                ItemEntity item = gameDatabase.Items.FirstOrDefault(x => x.SerialNumber == slot.Item.SerialNumber) ?? new ItemEntity();
+
+                item.Refine = slot.Item.Refine;
+                item.Element = (byte)slot.Item.Element;
+                item.ElementRefine = slot.Item.ElementRefine;
+                // TODO: save item attributes like awakening statistics.
+
+                if (item.SerialNumber == 0)
+                {
+                    item.Id = slot.Item.Id;
+                    //gameDatabase.Items.Add(item);
+                }
+
+                PlayerItemEntity playerItem = new()
+                {
+                    PlayerId = player.Id,
+                    Slot = (byte)slot.Number,
+                    Quantity = slot.Item.Quantity,
+                    StorageType = PlayerItemStorageType.Bank,
                     Item = item
                 };
 
